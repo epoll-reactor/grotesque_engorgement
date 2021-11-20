@@ -60,8 +60,8 @@ void test_traits() {
 template <typename Container>
 void test_seq_to_seq_impl() {
   using namespace query::convert_detail;
-  std::vector<int> v = { 1, 2, 3 };
-  Container assert = { 1, 2, 3 };
+  const std::vector<int> v = { 1, 2, 3 };
+  const Container assert = { 1, 2, 3 };
   container_cast<decltype(v), Container> cast;
   auto cv = cast(v);
   assert(cv == assert);
@@ -78,29 +78,29 @@ void test_seq_to_seq() {
 
 void test_seq_to_string() {
   using namespace query::convert_detail;
-  std::deque<int> v = { 1, 2, 3 };
-  std::string assert = "1 2 3";
+  const std::deque<int> v = { 1, 2, 3 };
+  const std::string assert = "1 2 3";
   container_cast<decltype(v), std::string> cast;
-  auto cv = cast(v);
+  const auto cv = cast(v);
   assert(cv == assert);
 }
 
 void test_ass_to_string() {
   using namespace query::convert_detail;
-  std::map<int, int> v = { {1, 1}, {2, 2}, {3, 3} };
-  std::string assert = "(1, 1)(2, 2)(3, 3)";
+  const std::map<int, int> v = { {1, 1}, {2, 2}, {3, 3} };
+  const std::string assert = "(1, 1)(2, 2)(3, 3)";
   container_cast<decltype(v), std::string> cast;
-  auto cv = cast(v);
+  const auto cv = cast(v);
   assert(cv == assert);
 }
 
 template <typename Container>
 void test_ass_to_ass_impl() {
   using namespace query::convert_detail;
-  std::map<int, int> v = { {1, 1}, {2, 2}, {3, 3} };
-  Container assert = { {1, 1}, {2, 2}, {3, 3} };
+  const std::map<int, int> v = { {1, 1}, {2, 2}, {3, 3} };
+  const Container assert = { {1, 1}, {2, 2}, {3, 3} };
   container_cast<decltype(v), Container> cast;
-  auto cv = cast(v);
+  const auto cv = cast(v);
   assert(cv == assert);
 }
 
@@ -114,40 +114,40 @@ void test_ass_to_ass() {
 template <typename Associative ,typename Sequence>
 void test_ordered_ass_to_seq_impl() {
   using namespace query::convert_detail;
-  Associative v = { {1, 1}, {2, 2}, {3, 3} };
-  Sequence assert = { 1, 1, 2, 2, 3, 3 };
+  const Associative v = { {1, 1}, {2, 2}, {3, 3} };
+  const Sequence assert = { 1, 1, 2, 2, 3, 3 };
   container_cast<Associative, Sequence> cast;
-  auto cv = cast(v);
+  const auto cv = cast(v);
   assert(cv == assert);
 }
 
 template <typename Associative ,typename Sequence>
 void test_ordered_multi_ass_to_seq_impl() {
   using namespace query::convert_detail;
-  Associative v = { {1, 1}, {1, 1}, {2, 2}, {2, 2}, {3, 3}, {3, 3} };
-  Sequence assert = { 1, 1, 1, 1, 2, 2, 2, 2, 3, 3, 3, 3 };
+  const Associative v = { {1, 1}, {1, 1}, {2, 2}, {2, 2}, {3, 3}, {3, 3} };
+  const Sequence assert = { 1, 1, 1, 1, 2, 2, 2, 2, 3, 3, 3, 3 };
   container_cast<Associative, Sequence> cast;
-  Sequence cv = cast(v);
+  const Sequence cv = cast(v);
   assert(cv == assert);
 }
 
 template <typename Associative, typename Sequence>
 void test_unordered_ass_to_seq_impl() {
   using namespace query::convert_detail;
-  Associative v = { {1, 1}, {1, 1}, {2, 2}, {2, 2}, {3, 3}, {3, 3} };
-  Sequence assert = { 1, 1, 2, 2, 3, 3 };
+  const Associative v = { {1, 1}, {1, 1}, {2, 2}, {2, 2}, {3, 3}, {3, 3} };
+  const Sequence assert = { 1, 1, 2, 2, 3, 3 };
   container_cast<Associative, Sequence> cast;
-  auto cv = cast(v);
+  const auto cv = cast(v);
   assert(cv == assert);
 }
 
 template <typename Associative, typename Sequence>
 void test_unordered_multi_ass_to_seq_impl() {
   using namespace query::convert_detail;
-  Associative v = { {1, 1}, {1, 1}, {2, 2}, {2, 2}, {3, 3}, {3, 3} };
-  Sequence assert = { 1, 1, 1, 1, 2, 2, 2, 2, 3, 3, 3, 3 };
+  const Associative v = { {1, 1}, {1, 1}, {2, 2}, {2, 2}, {3, 3}, {3, 3} };
+  const Sequence assert = { 1, 1, 1, 1, 2, 2, 2, 2, 3, 3, 3, 3 };
   container_cast<Associative, Sequence> cast;
-  auto cv = cast(v);
+  const auto cv = cast(v);
   assert(cv == assert);
 }
 
@@ -180,81 +180,6 @@ void test_convert() {
 }
 
 }// namespace convert
-
-//namespace merge {
-//
-//template <typename Sequence1, typename Sequence2>
-//void test_merge_seq_impl() {
-//  using namespace query::merge_detail;
-//  Sequence1 seq_1 = { 1, 2, 3 };
-//  Sequence2 seq_2 = { 4, 5, 6 };
-//  Sequence1 assert = { 1, 2, 3, 4, 5, 6 };
-//  query::merge_detail::merge<Sequence1, Sequence2> merge_object;
-//  merge_object(seq_1, seq_2);
-//  assert(seq_1 == assert);
-//}
-//
-//void test_merge_seq() {
-//  test_merge_seq_impl<std::vector<int>, std::vector<int>>();
-//  test_merge_seq_impl<std::vector<int>, std::deque<int>>();
-//  test_merge_seq_impl<std::vector<int>, std::list<int>>();
-//  test_merge_seq_impl<std::vector<int>, std::set<int>>();
-//
-//  test_merge_seq_impl<std::deque<int>, std::vector<int>>();
-//  test_merge_seq_impl<std::deque<int>, std::deque<int>>();
-//  test_merge_seq_impl<std::deque<int>, std::list<int>>();
-//  test_merge_seq_impl<std::deque<int>, std::set<int>>();
-//
-//  test_merge_seq_impl<std::list<int>, std::vector<int>>();
-//  test_merge_seq_impl<std::list<int>, std::deque<int>>();
-//  test_merge_seq_impl<std::list<int>, std::list<int>>();
-//  test_merge_seq_impl<std::list<int>, std::set<int>>();
-//
-//  test_merge_seq_impl<std::set<int>, std::vector<int>>();
-//  test_merge_seq_impl<std::set<int>, std::deque<int>>();
-//  test_merge_seq_impl<std::set<int>, std::list<int>>();
-//  test_merge_seq_impl<std::set<int>, std::set<int>>();
-//}
-//
-//template <typename Associative1, typename Associative2>
-//void test_merge_ass_impl() {
-//  using namespace query::merge_detail;
-//  Associative1 ass_1 = { {1, 1}, {2, 2}, {3, 3} };
-//  Associative2 ass_2 = { {4, 4}, {5, 5}, {6, 6} };
-//  Associative1 assert = { {1, 1}, {2, 2}, {3, 3}, {4, 4}, {5, 5}, {6, 6} };
-//  query::merge_detail::merge<Associative1, Associative2> merge_object;
-//  merge_object(ass_1, ass_2);
-//  assert(ass_1 == assert);
-//}
-//
-//void test_merge_ass() {
-//  test_merge_ass_impl<std::map<int, int>, std::map<int, int>>();
-//  test_merge_ass_impl<std::map<int, int>, std::unordered_map<int, int>>();
-//  test_merge_ass_impl<std::map<int, int>, std::multimap<int, int>>();
-//  test_merge_ass_impl<std::map<int, int>, std::unordered_multimap<int, int>>();
-//
-//  test_merge_ass_impl<std::map<int, int>, std::map<int, int>>();
-//  test_merge_ass_impl<std::unordered_map<int, int>, std::unordered_map<int, int>>();
-//  test_merge_ass_impl<std::unordered_map<int, int>, std::multimap<int, int>>();
-//  test_merge_ass_impl<std::unordered_map<int, int>, std::unordered_multimap<int, int>>();
-//
-//  test_merge_ass_impl<std::multimap<int, int>, std::map<int, int>>();
-//  test_merge_ass_impl<std::multimap<int, int>, std::unordered_map<int, int>>();
-//  test_merge_ass_impl<std::multimap<int, int>, std::multimap<int, int>>();
-//  test_merge_ass_impl<std::multimap<int, int>, std::unordered_multimap<int, int>>();
-//
-//  test_merge_ass_impl<std::unordered_multimap<int, int>, std::map<int, int>>();
-//  test_merge_ass_impl<std::unordered_multimap<int, int>, std::unordered_map<int, int>>();
-//  test_merge_ass_impl<std::unordered_multimap<int, int>, std::multimap<int, int>>();
-//  test_merge_ass_impl<std::unordered_multimap<int, int>, std::unordered_multimap<int, int>>();
-//}
-//
-//void test_merge() {
-//  test_merge_seq();
-//  test_merge_ass();
-//}
-//
-//} // namespace merge
 
 namespace conditional {
 
@@ -295,17 +220,17 @@ namespace from {
 
 template <typename From, typename To>
 void from_tests_seq_cast() {
-  From container = { 1, 2, 3 };
-    To    assert = { 1, 2, 3 };
-    To converted = query::from<From>(container).to(To{});
+  const From container = { 1, 2, 3 };
+  const   To    assert = { 1, 2, 3 };
+  const   To converted = query::from<From>(container).to(To{});
   assert(converted == assert);
 }
 
 template <typename From, typename To>
 void from_tests_ass_cast() {
-  From container = { {1,1}, {2,2}, {3,3} };
-    To    assert = { {1,1}, {2,2}, {3,3} };
-    To converted = query::from<From>(container).to(To{});
+  const From container = { {1,1}, {2,2}, {3,3} };
+  const   To    assert = { {1,1}, {2,2}, {3,3} };
+  const   To converted = query::from<From>(container).to(To{});
   assert(converted == assert);
 }
 
@@ -379,18 +304,18 @@ namespace merge {
 
 template <typename Container, typename MergeWith>
 void from_tests_merge_seq() {
-  Container to_merge_1 = { 1, 2, 3 };
-  MergeWith to_merge_2 = { 4, 5, 6 };
-  Container     assert = { 1, 2, 3, 4, 5, 6 };
-  Container     merged = query::from<Container>(to_merge_1).merge(to_merge_2).to(Container{});
+  const Container to_merge_1 = { 1, 2, 3 };
+  const MergeWith to_merge_2 = { 4, 5, 6 };
+  const Container     assert = { 1, 2, 3, 4, 5, 6 };
+  const Container     merged = query::from<Container>(to_merge_1).merge(to_merge_2).to(Container{});
   assert(merged == assert);
 }
 
 template <typename Container>
 void from_tests_merge_by_il() {
-  Container to_merge_1 = { 1, 2, 3 };
-  Container     assert = { 1, 2, 3, 4, 5, 6 };
-  Container     merged = query::from<Container>(to_merge_1).merge({ 4, 5, 6 }).to(Container{});
+  const Container to_merge_1 = { 1, 2, 3 };
+  const Container     assert = { 1, 2, 3, 4, 5, 6 };
+  const Container     merged = query::from<Container>(to_merge_1).merge({ 4, 5, 6 }).to(Container{});
   assert(merged == assert);
 }
 
@@ -443,22 +368,56 @@ namespace where {
 
 template <typename Container>
 void where_lambda_test_seq_impl() {
-  Container values = { 1, 2, 3, 4, 5, 6, 7, 8, 9 };
-  Container assert = {    2,    4,    6,    8    };
-  Container select =
-    query::from<Container>(values).where(
-      [](const auto& element) { return element % 2 == 0; }
-    ).to(Container{});
+  const Container values = { 1, 2, 3, 4, 5, 6, 7, 8, 9 };
+  const Container assert = {    2,    4,    6,    8    };
+  const Container select =
+    query::from<Container>(values).where([](const auto& element) { return element % 2 == 0; }).to(Container{});
   assert(select == assert);
 }
 
 template <typename Container>
 void where_gate_test_seq_impl() {
-  Container values = { 1, 2, 3, 4, 5, 6, 7, 8, 9 };
-  Container assert = {       3, 4, 5, 6, 7, 8, 9 };
-  Container select =
-    query::from<Container>(values).where(query::conditional::gate(std::greater_equal<>{}, 3)).to(Container{});
+  using query::conditional::gate;
+  const Container values = { 1, 2, 3, 4, 5, 6, 7, 8, 9 };
+  const Container assert = {       3, 4, 5, 6, 7, 8, 9 };
+  const Container select =
+    query::from<Container>(values).where(gate(std::greater_equal<>{}, 3)).to(Container{});
   assert(select == assert);
+}
+
+struct human { std::string name; size_t age; };
+bool operator==(const human& l, const human& r) {
+  return l.name == r.name && l.age == r.age;
+}
+
+void where_by_field_test() {
+  using query::conditional::gate;
+  const std::vector<human> people = {
+    { "John", 42 },
+    {  "Rob", 48 },
+    { "Alex", 33 },
+    {  "Leo", 41 }
+  };
+  const std::vector<human> assert = {
+    { "John", 42 },
+    {  "Rob", 48 },
+    {  "Max", 45 }
+  };
+  {
+    const std::vector<human> youngest =
+      query::from<std::vector<human>>(people)
+        .where(&human::age, gate(std::greater_equal<>{}, 42))
+        .merge({human{"Max", 45}})
+        .to(std::vector<human>{});
+    assert(youngest == assert);
+  } {
+    const std::vector<human> youngest =
+      query::from<std::vector<human>>(people)
+        .where(&human::age, [](auto age){ return age >= 42; })
+        .merge({human{"Max", 45}})
+        .to(std::vector<human>{});
+    assert(youngest == assert);
+  }
 }
 
 void where_tests() {
@@ -473,30 +432,28 @@ void where_tests() {
   where_gate_test_seq_impl<std::list<int>>();
   where_gate_test_seq_impl<std::set<int>>();
   where_gate_test_seq_impl<std::multiset<int>>();
+
+  where_by_field_test();
 }
 
 } // namespace where
 
 void complex_test() {
   using query::conditional::gate;
-  {
-    std::vector<int> values_1 = { 9,  7,  5,  3,  1};
-    std::vector<int> values_2 = { 2,  4,  6,  8, 10};
-    std::set<int> result =
-      query::from<std::vector<int>>(values_1)
-        .merge(values_2)
-        .where(gate(std::greater_equal<>{}, 5))
-        .merge({11, 12, 13, 14, 15, 16})
-        .to(std::set<int>{});
-    std::set<int> assert = {
-       5,   6,   7,   8,
-       9,  10,  11,  12,
-      13,  14,  15,  16
-    };
-    assert(result == assert);
-  } {
-    /// ...
-  }
+  const std::vector<int> values_1 = { 9,  7,  5,  3,  1 };
+  const std::vector<int> values_2 = { 2,  4,  6,  8, 10 };
+  const std::set<int> result =
+    query::from<std::vector<int>>(values_1)
+      .merge(values_2)
+      .where(gate(std::greater_equal<>{}, 5))
+      .merge({11, 12, 13, 14, 15, 16})
+      .to(std::set<int>{});
+  const std::set<int> assert = {
+     5,   6,   7,   8,
+     9,  10,  11,  12,
+    13,  14,  15,  16
+  };
+  assert(result == assert);
 }
 
 } // namespace test

@@ -447,20 +447,30 @@ class where final {
 public:
   template <typename Comparator, typename T, typename Buffer>
   static void by_gate(const conditional::gate<Comparator, T>& gate, Buffer& buffer, size_t /*elements_to_take*/) {
-    Buffer new_buffer;
-    for (const auto& element : buffer) {
-      if (gate.compare_with(element)) {
-        container_traits::any_push(new_buffer, element);
-      }
-    }
-    buffer = std::move(new_buffer);
+    impl(buffer, [&](const auto& element) { return gate.compare_with(element); });
+  }
+
+  template <typename Field, typename Comparator, typename T, typename Buffer>
+  static void by_gate(Field field, const conditional::gate<Comparator, T>& gate, Buffer& buffer, size_t /*elements_to_take*/) {
+    impl(buffer, [&](const auto& element) { return gate.compare_with(element.*field); });
   }
 
   template <typename Lambda, typename Buffer>
   static void by_lambda(Lambda lambda, Buffer& buffer, size_t /*elements_to_take*/) {
+    impl(buffer, [&](const auto& element) { return lambda(element); });
+  }
+
+  template <typename Field, typename Lambda, typename Buffer>
+  static void by_lambda(Field field, Lambda lambda, Buffer& buffer, size_t /*elements_to_take*/) {
+    impl(buffer, [&](const auto& element) { return lambda(element.*field); });
+  }
+
+private:
+  template <typename Buffer, typename Comparator>
+  static void impl(Buffer& buffer, Comparator comparator) {
     Buffer new_buffer;
     for (const auto& element : buffer) {
-      if (lambda(element)) {
+      if (comparator(element)) {
         container_traits::any_push(new_buffer, element);
       }
     }
@@ -511,10 +521,24 @@ public:
     return *this;
   }
 
+  template <typename Field, typename T, typename Comparator>
+  from& where(Field field, conditional::gate<Comparator, T>&& logical_gate) {
+    populate_buffer_if_empty();
+    WherePolicy::by_gate(field, logical_gate, buffer_, elements_to_take_);
+    return *this;
+  }
+
   template <typename Lambda>
   from& where(Lambda lambda) {
     populate_buffer_if_empty();
     WherePolicy::by_lambda(lambda, buffer_, elements_to_take_);
+    return *this;
+  }
+
+  template <typename Field, typename Lambda>
+  from& where(Field field, Lambda lambda) {
+    populate_buffer_if_empty();
+    WherePolicy::by_lambda(field, lambda, buffer_, elements_to_take_);
     return *this;
   }
 
@@ -592,18 +616,18 @@ public:
   }
 
 private:
-  void populate_buffer_if_empty() {
-    if (buffer_.empty()) {
-      MergePolicy<TemporaryHolderContainer, SourceContainer> merge_policy;
-      merge_policy(buffer_, container_);
-    }
-  }
-
   template <typename Target>
   void merge_impl(const Target& with) {
     populate_buffer_if_empty();
     MergePolicy<TemporaryHolderContainer, Target> merge_policy;
     merge_policy(buffer_, with);
+  }
+
+  void populate_buffer_if_empty() {
+    if (buffer_.empty()) {
+      MergePolicy<TemporaryHolderContainer, SourceContainer> merge_policy;
+      merge_policy(buffer_, container_);
+    }
   }
 
   const SourceContainer&   container_;
