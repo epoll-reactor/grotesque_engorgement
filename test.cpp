@@ -1,4 +1,4 @@
-#include "select.hpp"
+#include "query.hpp"
 
 namespace test {
 namespace container_traits {
@@ -181,118 +181,80 @@ void test_convert() {
 
 }// namespace convert
 
-namespace merge {
-
-template <typename Sequence1, typename Sequence2>
-void test_merge_seq_impl() {
-  using namespace query::merge_detail;
-  Sequence1 seq_1 = { 1, 2, 3 };
-  Sequence2 seq_2 = { 4, 5, 6 };
-  Sequence1 assert = { 1, 2, 3, 4, 5, 6 };
-  query::merge_detail::merge<Sequence1, Sequence2> merge_object;
-  merge_object(seq_1, seq_2);
-  assert(seq_1 == assert);
-}
-
-void test_merge_seq() {
-  test_merge_seq_impl<std::vector<int>, std::vector<int>>();
-  test_merge_seq_impl<std::vector<int>, std::deque<int>>();
-  test_merge_seq_impl<std::vector<int>, std::list<int>>();
-  test_merge_seq_impl<std::vector<int>, std::set<int>>();
-
-  test_merge_seq_impl<std::deque<int>, std::vector<int>>();
-  test_merge_seq_impl<std::deque<int>, std::deque<int>>();
-  test_merge_seq_impl<std::deque<int>, std::list<int>>();
-  test_merge_seq_impl<std::deque<int>, std::set<int>>();
-
-  test_merge_seq_impl<std::list<int>, std::vector<int>>();
-  test_merge_seq_impl<std::list<int>, std::deque<int>>();
-  test_merge_seq_impl<std::list<int>, std::list<int>>();
-  test_merge_seq_impl<std::list<int>, std::set<int>>();
-
-  test_merge_seq_impl<std::set<int>, std::vector<int>>();
-  test_merge_seq_impl<std::set<int>, std::deque<int>>();
-  test_merge_seq_impl<std::set<int>, std::list<int>>();
-  test_merge_seq_impl<std::set<int>, std::set<int>>();
-}
-
-template <typename Associative1, typename Associative2>
-void test_merge_ass_impl() {
-  using namespace query::merge_detail;
-  Associative1 ass_1 = { {1, 1}, {2, 2}, {3, 3} };
-  Associative2 ass_2 = { {4, 4}, {5, 5}, {6, 6} };
-  Associative1 assert = { {1, 1}, {2, 2}, {3, 3}, {4, 4}, {5, 5}, {6, 6} };
-  query::merge_detail::merge<Associative1, Associative2> merge_object;
-  merge_object(ass_1, ass_2);
-  assert(ass_1 == assert);
-}
-
-void test_merge_ass() {
-  test_merge_ass_impl<std::map<int, int>, std::map<int, int>>();
-  test_merge_ass_impl<std::map<int, int>, std::unordered_map<int, int>>();
-  test_merge_ass_impl<std::map<int, int>, std::multimap<int, int>>();
-  test_merge_ass_impl<std::map<int, int>, std::unordered_multimap<int, int>>();
-
-  test_merge_ass_impl<std::map<int, int>, std::map<int, int>>();
-  test_merge_ass_impl<std::unordered_map<int, int>, std::unordered_map<int, int>>();
-  test_merge_ass_impl<std::unordered_map<int, int>, std::multimap<int, int>>();
-  test_merge_ass_impl<std::unordered_map<int, int>, std::unordered_multimap<int, int>>();
-
-  test_merge_ass_impl<std::multimap<int, int>, std::map<int, int>>();
-  test_merge_ass_impl<std::multimap<int, int>, std::unordered_map<int, int>>();
-  test_merge_ass_impl<std::multimap<int, int>, std::multimap<int, int>>();
-  test_merge_ass_impl<std::multimap<int, int>, std::unordered_multimap<int, int>>();
-
-  test_merge_ass_impl<std::unordered_multimap<int, int>, std::map<int, int>>();
-  test_merge_ass_impl<std::unordered_multimap<int, int>, std::unordered_map<int, int>>();
-  test_merge_ass_impl<std::unordered_multimap<int, int>, std::multimap<int, int>>();
-  test_merge_ass_impl<std::unordered_multimap<int, int>, std::unordered_multimap<int, int>>();
-}
-
-void test_merge() {
-  test_merge_seq();
-  test_merge_ass();
-}
-
-} // namespace merge
-
-namespace set_operations {
-
-//template <typename SetFunction, typename Container>
-//void set_test_impl(SetFunction set_function, Container expected_range) {
-//  using namespace query::set_operations;
-//  Container elements_1 = { 1, 2, 3 };
-//  Container elements_2 = {    2, 3, 4 };
-//  Container result;
-//  default_set(
-//    elements_1.begin(), elements_1.end(),
-//    elements_2.begin(), elements_2.end(),
-//    std::back_inserter(result),
-//    set_function);
-//  assert(result == expected_range);
+//namespace merge {
+//
+//template <typename Sequence1, typename Sequence2>
+//void test_merge_seq_impl() {
+//  using namespace query::merge_detail;
+//  Sequence1 seq_1 = { 1, 2, 3 };
+//  Sequence2 seq_2 = { 4, 5, 6 };
+//  Sequence1 assert = { 1, 2, 3, 4, 5, 6 };
+//  query::merge_detail::merge<Sequence1, Sequence2> merge_object;
+//  merge_object(seq_1, seq_2);
+//  assert(seq_1 == assert);
 //}
-
-void set_tests() {
-//  std::vector<int> union_expected = { 1, 2, 3, 4 };
-//  set_test_impl(std::set_union<
-//    decltype(union_expected.begin()),
-//    decltype(union_expected.end()),
-//    decltype(std::back_insert_iterator(union_expected))>, union_expected);
 //
-//  std::vector<int> intersect_expected = { 2, 3 };
-//  set_test_impl(std::set_intersection<
-//    decltype(intersect_expected.begin()),
-//    decltype(intersect_expected.end()),
-//    decltype(std::back_insert_iterator(intersect_expected))>, intersect_expected);
+//void test_merge_seq() {
+//  test_merge_seq_impl<std::vector<int>, std::vector<int>>();
+//  test_merge_seq_impl<std::vector<int>, std::deque<int>>();
+//  test_merge_seq_impl<std::vector<int>, std::list<int>>();
+//  test_merge_seq_impl<std::vector<int>, std::set<int>>();
 //
-//  std::vector<int> difference_expected = { 1 };
-//  set_test_impl(std::set_difference<
-//    decltype(difference_expected.begin()),
-//    decltype(difference_expected.end()),
-//    decltype(std::back_insert_iterator(difference_expected))>, difference_expected);
-}
-
-} // namespace set_operations
+//  test_merge_seq_impl<std::deque<int>, std::vector<int>>();
+//  test_merge_seq_impl<std::deque<int>, std::deque<int>>();
+//  test_merge_seq_impl<std::deque<int>, std::list<int>>();
+//  test_merge_seq_impl<std::deque<int>, std::set<int>>();
+//
+//  test_merge_seq_impl<std::list<int>, std::vector<int>>();
+//  test_merge_seq_impl<std::list<int>, std::deque<int>>();
+//  test_merge_seq_impl<std::list<int>, std::list<int>>();
+//  test_merge_seq_impl<std::list<int>, std::set<int>>();
+//
+//  test_merge_seq_impl<std::set<int>, std::vector<int>>();
+//  test_merge_seq_impl<std::set<int>, std::deque<int>>();
+//  test_merge_seq_impl<std::set<int>, std::list<int>>();
+//  test_merge_seq_impl<std::set<int>, std::set<int>>();
+//}
+//
+//template <typename Associative1, typename Associative2>
+//void test_merge_ass_impl() {
+//  using namespace query::merge_detail;
+//  Associative1 ass_1 = { {1, 1}, {2, 2}, {3, 3} };
+//  Associative2 ass_2 = { {4, 4}, {5, 5}, {6, 6} };
+//  Associative1 assert = { {1, 1}, {2, 2}, {3, 3}, {4, 4}, {5, 5}, {6, 6} };
+//  query::merge_detail::merge<Associative1, Associative2> merge_object;
+//  merge_object(ass_1, ass_2);
+//  assert(ass_1 == assert);
+//}
+//
+//void test_merge_ass() {
+//  test_merge_ass_impl<std::map<int, int>, std::map<int, int>>();
+//  test_merge_ass_impl<std::map<int, int>, std::unordered_map<int, int>>();
+//  test_merge_ass_impl<std::map<int, int>, std::multimap<int, int>>();
+//  test_merge_ass_impl<std::map<int, int>, std::unordered_multimap<int, int>>();
+//
+//  test_merge_ass_impl<std::map<int, int>, std::map<int, int>>();
+//  test_merge_ass_impl<std::unordered_map<int, int>, std::unordered_map<int, int>>();
+//  test_merge_ass_impl<std::unordered_map<int, int>, std::multimap<int, int>>();
+//  test_merge_ass_impl<std::unordered_map<int, int>, std::unordered_multimap<int, int>>();
+//
+//  test_merge_ass_impl<std::multimap<int, int>, std::map<int, int>>();
+//  test_merge_ass_impl<std::multimap<int, int>, std::unordered_map<int, int>>();
+//  test_merge_ass_impl<std::multimap<int, int>, std::multimap<int, int>>();
+//  test_merge_ass_impl<std::multimap<int, int>, std::unordered_multimap<int, int>>();
+//
+//  test_merge_ass_impl<std::unordered_multimap<int, int>, std::map<int, int>>();
+//  test_merge_ass_impl<std::unordered_multimap<int, int>, std::unordered_map<int, int>>();
+//  test_merge_ass_impl<std::unordered_multimap<int, int>, std::multimap<int, int>>();
+//  test_merge_ass_impl<std::unordered_multimap<int, int>, std::unordered_multimap<int, int>>();
+//}
+//
+//void test_merge() {
+//  test_merge_seq();
+//  test_merge_ass();
+//}
+//
+//} // namespace merge
 
 namespace conditional {
 
@@ -322,34 +284,230 @@ void test_cond() {
       || !gate(std::less<>{}, 1, 1)
     )
   );
+  constexpr gate _6(std::equal_to<>{}, 2);
+  static_assert( _6.compare_with(2));
+  static_assert(!_6.compare_with(1));
 }
 
 } // namespace conditional
+
+namespace from {
+
+template <typename From, typename To>
+void from_tests_seq_cast() {
+  From container = { 1, 2, 3 };
+    To    assert = { 1, 2, 3 };
+    To converted = query::from<From>(container).to(To{});
+  assert(converted == assert);
+}
+
+template <typename From, typename To>
+void from_tests_ass_cast() {
+  From container = { {1,1}, {2,2}, {3,3} };
+    To    assert = { {1,1}, {2,2}, {3,3} };
+    To converted = query::from<From>(container).to(To{});
+  assert(converted == assert);
+}
+
+void from_tests() {
+  from_tests_seq_cast<std::vector<int>, std::vector<int>>();
+  from_tests_seq_cast<std::vector<int>, std::deque<int>>();
+  from_tests_seq_cast<std::vector<int>, std::list<int>>();
+  from_tests_seq_cast<std::vector<int>, std::forward_list<int>>();
+  from_tests_seq_cast<std::vector<int>, std::set<int>>();
+  from_tests_seq_cast<std::vector<int>, std::multiset<int>>();
+
+  from_tests_seq_cast<std::deque<int>, std::vector<int>>();
+  from_tests_seq_cast<std::deque<int>, std::deque<int>>();
+  from_tests_seq_cast<std::deque<int>, std::list<int>>();
+  from_tests_seq_cast<std::deque<int>, std::forward_list<int>>();
+  from_tests_seq_cast<std::deque<int>, std::set<int>>();
+  from_tests_seq_cast<std::deque<int>, std::multiset<int>>();
+
+  from_tests_seq_cast<std::list<int>, std::vector<int>>();
+  from_tests_seq_cast<std::list<int>, std::deque<int>>();
+  from_tests_seq_cast<std::list<int>, std::list<int>>();
+  from_tests_seq_cast<std::list<int>, std::forward_list<int>>();
+  from_tests_seq_cast<std::list<int>, std::set<int>>();
+  from_tests_seq_cast<std::list<int>, std::multiset<int>>();
+
+  from_tests_seq_cast<std::forward_list<int>, std::vector<int>>();
+  from_tests_seq_cast<std::forward_list<int>, std::deque<int>>();
+  from_tests_seq_cast<std::forward_list<int>, std::list<int>>();
+  from_tests_seq_cast<std::forward_list<int>, std::forward_list<int>>();
+  from_tests_seq_cast<std::forward_list<int>, std::set<int>>();
+  from_tests_seq_cast<std::forward_list<int>, std::multiset<int>>();
+
+  from_tests_seq_cast<std::set<int>, std::vector<int>>();
+  from_tests_seq_cast<std::set<int>, std::deque<int>>();
+  from_tests_seq_cast<std::set<int>, std::list<int>>();
+  from_tests_seq_cast<std::set<int>, std::forward_list<int>>();
+  from_tests_seq_cast<std::set<int>, std::set<int>>();
+  from_tests_seq_cast<std::set<int>, std::multiset<int>>();
+
+  from_tests_seq_cast<std::multiset<int>, std::vector<int>>();
+  from_tests_seq_cast<std::multiset<int>, std::deque<int>>();
+  from_tests_seq_cast<std::multiset<int>, std::list<int>>();
+  from_tests_seq_cast<std::multiset<int>, std::forward_list<int>>();
+  from_tests_seq_cast<std::multiset<int>, std::set<int>>();
+  from_tests_seq_cast<std::multiset<int>, std::multiset<int>>();
+
+  from_tests_ass_cast<std::map<int, int>, std::map<int, int>>();
+  from_tests_ass_cast<std::map<int, int>, std::multimap<int, int>>();
+  from_tests_ass_cast<std::map<int, int>, std::unordered_map<int, int>>();
+  from_tests_ass_cast<std::map<int, int>, std::unordered_multimap<int, int>>();
+
+  from_tests_ass_cast<std::multimap<int, int>, std::map<int, int>>();
+  from_tests_ass_cast<std::multimap<int, int>, std::multimap<int, int>>();
+  from_tests_ass_cast<std::multimap<int, int>, std::unordered_map<int, int>>();
+  from_tests_ass_cast<std::multimap<int, int>, std::unordered_multimap<int, int>>();
+
+  from_tests_ass_cast<std::unordered_map<int, int>, std::map<int, int>>();
+  from_tests_ass_cast<std::unordered_map<int, int>, std::multimap<int, int>>();
+  from_tests_ass_cast<std::unordered_map<int, int>, std::unordered_map<int, int>>();
+  from_tests_ass_cast<std::unordered_map<int, int>, std::unordered_multimap<int, int>>();
+
+  from_tests_ass_cast<std::unordered_multimap<int, int>, std::map<int, int>>();
+  from_tests_ass_cast<std::unordered_multimap<int, int>, std::multimap<int, int>>();
+  from_tests_ass_cast<std::unordered_multimap<int, int>, std::unordered_map<int, int>>();
+  from_tests_ass_cast<std::unordered_multimap<int, int>, std::unordered_multimap<int, int>>();
+}
+
+} // namespace from
+
+namespace merge {
+
+template <typename Container, typename MergeWith>
+void from_tests_merge_seq() {
+  Container to_merge_1 = { 1, 2, 3 };
+  MergeWith to_merge_2 = { 4, 5, 6 };
+  Container     assert = { 1, 2, 3, 4, 5, 6 };
+  Container     merged = query::from<Container>(to_merge_1).merge(to_merge_2).to(Container{});
+  assert(merged == assert);
+}
+
+template <typename Container>
+void from_tests_merge_by_il() {
+  Container to_merge_1 = { 1, 2, 3 };
+  Container     assert = { 1, 2, 3, 4, 5, 6 };
+  Container     merged = query::from<Container>(to_merge_1).merge({ 4, 5, 6 }).to(Container{});
+  assert(merged == assert);
+}
+
+void merge_tests() {
+  from_tests_merge_seq<std::vector<int>, std::vector<int>>();
+  from_tests_merge_seq<std::vector<int>, std::deque<int>>();
+  from_tests_merge_seq<std::vector<int>, std::list<int>>();
+  from_tests_merge_seq<std::vector<int>, std::forward_list<int>>();
+  from_tests_merge_seq<std::vector<int>, std::set<int>>();
+  from_tests_merge_seq<std::vector<int>, std::multiset<int>>();
+
+  from_tests_merge_seq<std::deque<int>, std::vector<int>>();
+  from_tests_merge_seq<std::deque<int>, std::deque<int>>();
+  from_tests_merge_seq<std::deque<int>, std::list<int>>();
+  from_tests_merge_seq<std::deque<int>, std::forward_list<int>>();
+  from_tests_merge_seq<std::deque<int>, std::set<int>>();
+  from_tests_merge_seq<std::deque<int>, std::multiset<int>>();
+
+  from_tests_merge_seq<std::list<int>, std::vector<int>>();
+  from_tests_merge_seq<std::list<int>, std::deque<int>>();
+  from_tests_merge_seq<std::list<int>, std::list<int>>();
+  from_tests_merge_seq<std::list<int>, std::forward_list<int>>();
+  from_tests_merge_seq<std::list<int>, std::set<int>>();
+  from_tests_merge_seq<std::list<int>, std::multiset<int>>();
+
+  from_tests_merge_seq<std::set<int>, std::vector<int>>();
+  from_tests_merge_seq<std::set<int>, std::deque<int>>();
+  from_tests_merge_seq<std::set<int>, std::list<int>>();
+  from_tests_merge_seq<std::set<int>, std::forward_list<int>>();
+  from_tests_merge_seq<std::set<int>, std::set<int>>();
+  from_tests_merge_seq<std::set<int>, std::multiset<int>>();
+
+  from_tests_merge_seq<std::multiset<int>, std::vector<int>>();
+  from_tests_merge_seq<std::multiset<int>, std::deque<int>>();
+  from_tests_merge_seq<std::multiset<int>, std::list<int>>();
+  from_tests_merge_seq<std::multiset<int>, std::forward_list<int>>();
+  from_tests_merge_seq<std::multiset<int>, std::set<int>>();
+  from_tests_merge_seq<std::multiset<int>, std::multiset<int>>();
+
+  from_tests_merge_by_il<std::vector<int>>();
+  from_tests_merge_by_il<std::deque<int>>();
+  from_tests_merge_by_il<std::list<int>>();
+  from_tests_merge_by_il<std::set<int>>();
+  from_tests_merge_by_il<std::multiset<int>>();
+}
+
+} // namespace merge
+
+namespace where {
+
+template <typename Container>
+void where_lambda_test_seq_impl() {
+  Container values = { 1, 2, 3, 4, 5, 6, 7, 8, 9 };
+  Container assert = {    2,    4,    6,    8    };
+  Container select =
+    query::from<Container>(values).where(
+      [](const auto& element) { return element % 2 == 0; }
+    ).to(Container{});
+  assert(select == assert);
+}
+
+template <typename Container>
+void where_gate_test_seq_impl() {
+  Container values = { 1, 2, 3, 4, 5, 6, 7, 8, 9 };
+  Container assert = {       3, 4, 5, 6, 7, 8, 9 };
+  Container select =
+    query::from<Container>(values).where(query::conditional::gate(std::greater_equal<>{}, 3)).to(Container{});
+  assert(select == assert);
+}
+
+void where_tests() {
+  where_lambda_test_seq_impl<std::vector<int>>();
+  where_lambda_test_seq_impl<std::deque<int>>();
+  where_lambda_test_seq_impl<std::list<int>>();
+  where_lambda_test_seq_impl<std::set<int>>();
+  where_lambda_test_seq_impl<std::multiset<int>>();
+
+  where_gate_test_seq_impl<std::vector<int>>();
+  where_gate_test_seq_impl<std::deque<int>>();
+  where_gate_test_seq_impl<std::list<int>>();
+  where_gate_test_seq_impl<std::set<int>>();
+  where_gate_test_seq_impl<std::multiset<int>>();
+}
+
+} // namespace where
+
+void complex_test() {
+  using query::conditional::gate;
+  {
+    std::vector<int> values_1 = { 9,  7,  5,  3,  1};
+    std::vector<int> values_2 = { 2,  4,  6,  8, 10};
+    std::set<int> result =
+      query::from<std::vector<int>>(values_1)
+        .merge(values_2)
+        .where(gate(std::greater_equal<>{}, 5))
+        .merge({11, 12, 13, 14, 15, 16})
+        .to(std::set<int>{});
+    std::set<int> assert = {
+       5,   6,   7,   8,
+       9,  10,  11,  12,
+      13,  14,  15,  16
+    };
+    assert(result == assert);
+  } {
+    /// ...
+  }
+}
+
 } // namespace test
 
-void container_select_tests() {
+int main() {
   test::container_traits::test_push();
   test::container_traits::test_clear();
   test::convert::test_convert();
-  test::merge::test_merge();
-  test::set_operations::set_tests();
   test::conditional::test_cond();
-}
-
-void access_by_field() {
-  struct x { int key, value; };
-  auto compare_by_field = [](auto x, auto field, auto value) {
-    if (std::equal_to<>{}(x.*field, value)) {
-      std::cout << "OK\n";
-    } else {
-      std::cout << "X\n";
-    }
-  };
-  x value { 1, 2 };
-  compare_by_field(value, &x::key, 1);
-  compare_by_field(value, &x::value, 1);
-}
-
-int main() {
-  container_select_tests();
+  test::from::from_tests();
+  test::merge::merge_tests();
+  test::where::where_tests();
+  test::complex_test();
 }
