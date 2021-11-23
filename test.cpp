@@ -55,6 +55,13 @@ void test_traits() {
   static_assert(!has_iterator<int>::value);
   static_assert(!has_iterator<char>::value);
   static_assert(!has_iterator<std::pair<int, int>>::value);
+
+  struct empty {};
+  static_assert(!has_three_way_comparator<int>::value);
+  static_assert(!has_three_way_comparator<empty>::value);
+  static_assert( has_three_way_comparator<std::string>::value);
+  static_assert( has_three_way_comparator<std::vector<int>>::value);
+  static_assert(!has_three_way_comparator<std::ostreambuf_iterator<int>>::value);
 }
 
 template <typename Container>
@@ -184,32 +191,31 @@ void test_convert() {
 namespace conditional {
 
 void test_cond() {
-  using namespace query::conditional;
-  constexpr gate _1(std::equal_to<>{}, 1, 0);
+  constexpr query::gate _1(std::equal_to<>{}, 1, 0);
   static_assert(!_1);
   struct equal_comparator {
     constexpr bool operator()(int l, int r) const {
       return l == r;
     }
   };
-  constexpr gate _2(equal_comparator{}, 1, 1);
+  constexpr query::gate _2(equal_comparator{}, 1, 1);
   static_assert(_2);
-  constexpr gate
+  constexpr query::gate
     _3(std::equal_to<>{}, 1, 1),
     _4(std::equal_to<>{}, 2, ~0),
     _5(std::equal_to<>{}, 3, 3);
   static_assert(!(_3 && _4) || _5);
-  static_assert(gate(std::equal_to<>{}, 1, 1));
+  static_assert(query::gate(std::equal_to<>{}, 1, 1));
   static_assert(
     (
-         !gate(std::equal_to<>{}, 1, 1)
-      || !gate(std::equal_to<>{}, 1, 0)
+         !query::gate(std::equal_to<>{}, 1, 1)
+      || !query::gate(std::equal_to<>{}, 1, 0)
     ) && (
-         !gate(std::less_equal<>{}, 1, 1)
-      || !gate(std::less<>{}, 1, 1)
+         !query::gate(std::less_equal<>{}, 1, 1)
+      || !query::gate(std::less<>{}, 1, 1)
     )
   );
-  constexpr gate _6(std::equal_to<>{}, 2);
+  constexpr query::gate _6(std::equal_to<>{}, 2);
   static_assert( _6.compare_with(2));
   static_assert(!_6.compare_with(1));
 }
@@ -230,7 +236,7 @@ template <typename From, typename To>
 void from_tests_ass_cast() {
   const From container = { {1,1}, {2,2}, {3,3} };
   const   To    assert = { {1,1}, {2,2}, {3,3} };
-  const   To converted = query::from<From>(container).to(To{});
+  const   To converted = query::from(container).to(To{});
   assert(converted == assert);
 }
 
@@ -307,7 +313,7 @@ void from_tests_merge_seq() {
   const Container to_merge_1 = { 1, 2, 3 };
   const MergeWith to_merge_2 = { 4, 5, 6 };
   const Container     assert = { 1, 2, 3, 4, 5, 6 };
-  const Container     merged = query::from<Container>(to_merge_1).merge(to_merge_2).to(Container{});
+  const Container     merged = query::from(to_merge_1).merge(to_merge_2).to(Container{});
   assert(merged == assert);
 }
 
@@ -315,7 +321,7 @@ template <typename Container>
 void from_tests_merge_by_il() {
   const Container to_merge_1 = { 1, 2, 3 };
   const Container     assert = { 1, 2, 3, 4, 5, 6 };
-  const Container     merged = query::from<Container>(to_merge_1).merge({ 4, 5, 6 }).to(Container{});
+  const Container     merged = query::from(to_merge_1).merge({ 4, 5, 6 }).to(Container{});
   assert(merged == assert);
 }
 
@@ -371,17 +377,17 @@ void where_lambda_test_seq_impl() {
   const Container values = { 1, 2, 3, 4, 5, 6, 7, 8, 9 };
   const Container assert = {    2,    4,    6,    8    };
   const Container select =
-    query::from<Container>(values).where([](const auto& element) { return element % 2 == 0; }).to(Container{});
+    query::from(values).where([](const auto& element) { return element % 2 == 0; }).to(Container{});
   assert(select == assert);
 }
 
 template <typename Container>
 void where_gate_test_seq_impl() {
-  using query::conditional::gate;
+  using query::gate;
   const Container values = { 1, 2, 3, 4, 5, 6, 7, 8, 9 };
   const Container assert = {       3, 4, 5, 6, 7, 8, 9 };
   const Container select =
-    query::from<Container>(values).where(gate(std::greater_equal<>{}, 3)).to(Container{});
+    query::from(values).where(gate(std::greater_equal<>{}, 3)).to(Container{});
   assert(select == assert);
 }
 
@@ -390,8 +396,30 @@ bool operator==(const human& l, const human& r) {
   return l.name == r.name && l.age == r.age;
 }
 
+template <typename Container>
+void where_associative_impl() {
+  {
+    const Container values = { {1,2}, {3,4}, {5,6} };
+    const Container assert = {        {3,4}, {5,6} };
+    const Container select =
+      query::from(values).where_key(query::gate(std::greater_equal<>{}, 3)).to(Container{});
+    assert(select == assert);
+  } {
+    const Container values = { {1,2}, {3,4}, {5,6} };
+    const Container assert = {        {3,4}, {5,6} };
+    const Container select =
+      query::from(values).where_value(query::gate(std::greater_equal<>{}, 4)).to(Container{});
+    assert(select == assert);
+  } {
+    const std::set<int> assert = { 1, 2, 3, 4, 5, 6, 7, 8 };
+    const Container        odd = { {1,3}, {5,7} };
+    const Container       even = { {2,4}, {6,8} };
+    const std::set<int> select = query::from(odd).merge(even).to(std::set<int>{});
+    assert (select == assert);
+  }
+}
+
 void where_by_field_test() {
-  using query::conditional::gate;
   const std::vector<human> people = {
     { "John", 42 },
     {  "Rob", 48 },
@@ -405,20 +433,29 @@ void where_by_field_test() {
   };
   {
     const std::vector<human> youngest =
-      query::from<std::vector<human>>(people)
-        .where(&human::age, gate(std::greater_equal<>{}, 42))
+      query::from(people)
+        .where(&human::age, query::gate(std::greater_equal<>{}, 42))
         .merge({human{"Max", 45}})
         .to(std::vector<human>{});
     assert(youngest == assert);
   } {
     const std::vector<human> youngest =
-      query::from<std::vector<human>>(people)
+      query::from(people)
         .where(&human::age, [](auto age){ return age >= 42; })
         .merge({human{"Max", 45}})
         .to(std::vector<human>{});
     assert(youngest == assert);
   }
 }
+
+void where_take_count_test() {
+  const std::vector<int> values = { 1, 1, 1, 1, 1 };
+  const std::vector<int> assert = {             1 };
+  const std::vector<int> select =
+    query::from(values).take(1).where(query::gate(std::equal_to<>{}, 1)).to(std::vector<int>{});
+  assert(select == assert);
+}
+
 
 void where_tests() {
   where_lambda_test_seq_impl<std::vector<int>>();
@@ -433,19 +470,43 @@ void where_tests() {
   where_gate_test_seq_impl<std::set<int>>();
   where_gate_test_seq_impl<std::multiset<int>>();
 
+  where_associative_impl<std::map<int, int>>();
+
   where_by_field_test();
+  where_take_count_test();
 }
 
 } // namespace where
 
+namespace set {
+
+template <typename Container>
+void union_with_seq_test() {
+  Container   values = { 1, 2, 3, 4, 5, 5, 5 };
+  Container to_union = {       3, 4, 5, 6, 7 };
+  Container   assert = { 1, 2, 3, 4, 5, 5, 5, 6, 7 };
+  Container select =
+    query::from(values).union_with(to_union).to(Container{});
+  assert(select == assert);
+}
+
+void set_tests() {
+  union_with_seq_test<std::vector<int>>();
+//  union_with_seq_test<std::deque<int>>();
+//  union_with_seq_test<std::list<int>>();
+//  union_with_seq_test<std::set<int>>();
+//  union_with_seq_test<std::multiset<int>>();
+}
+
+} // namespace set
+
 void complex_test() {
-  using query::conditional::gate;
   const std::vector<int> values_1 = { 9,  7,  5,  3,  1 };
   const std::vector<int> values_2 = { 2,  4,  6,  8, 10 };
   const std::set<int> result =
-    query::from<std::vector<int>>(values_1)
+    query::from(values_1)
       .merge(values_2)
-      .where(gate(std::greater_equal<>{}, 5))
+      .where(query::gate(std::greater_equal<>{}, 5))
       .merge({11, 12, 13, 14, 15, 16})
       .to(std::set<int>{});
   const std::set<int> assert = {
@@ -466,5 +527,6 @@ int main() {
   test::from::from_tests();
   test::merge::merge_tests();
   test::where::where_tests();
+  test::set::set_tests();
   test::complex_test();
 }
