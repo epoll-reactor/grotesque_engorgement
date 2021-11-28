@@ -66,10 +66,9 @@ void test_traits() {
 
 template <typename Container>
 void test_seq_to_seq_impl() {
-  using namespace query::convert_detail;
   const std::vector<int> v = { 1, 2, 3 };
   const Container assert = { 1, 2, 3 };
-  container_cast<decltype(v), Container> cast;
+  query::cast<decltype(v), Container> cast;
   auto cv = cast(v);
   assert(cv == assert);
 }
@@ -84,29 +83,26 @@ void test_seq_to_seq() {
 }
 
 void test_seq_to_string() {
-  using namespace query::convert_detail;
   const std::deque<int> v = { 1, 2, 3 };
   const std::string assert = "1 2 3";
-  container_cast<decltype(v), std::string> cast;
+  query::cast<decltype(v), std::string> cast;
   const auto cv = cast(v);
   assert(cv == assert);
 }
 
 void test_ass_to_string() {
-  using namespace query::convert_detail;
   const std::map<int, int> v = { {1, 1}, {2, 2}, {3, 3} };
   const std::string assert = "(1, 1)(2, 2)(3, 3)";
-  container_cast<decltype(v), std::string> cast;
+  query::cast<decltype(v), std::string> cast;
   const auto cv = cast(v);
   assert(cv == assert);
 }
 
 template <typename Container>
 void test_ass_to_ass_impl() {
-  using namespace query::convert_detail;
   const std::map<int, int> v = { {1, 1}, {2, 2}, {3, 3} };
   const Container assert = { {1, 1}, {2, 2}, {3, 3} };
-  container_cast<decltype(v), Container> cast;
+  query::cast<decltype(v), Container> cast;
   const auto cv = cast(v);
   assert(cv == assert);
 }
@@ -120,40 +116,36 @@ void test_ass_to_ass() {
 
 template <typename Associative ,typename Sequence>
 void test_ordered_ass_to_seq_impl() {
-  using namespace query::convert_detail;
   const Associative v = { {1, 1}, {2, 2}, {3, 3} };
   const Sequence assert = { 1, 1, 2, 2, 3, 3 };
-  container_cast<Associative, Sequence> cast;
+  query::cast<Associative, Sequence> cast;
   const auto cv = cast(v);
   assert(cv == assert);
 }
 
 template <typename Associative ,typename Sequence>
 void test_ordered_multi_ass_to_seq_impl() {
-  using namespace query::convert_detail;
   const Associative v = { {1, 1}, {1, 1}, {2, 2}, {2, 2}, {3, 3}, {3, 3} };
   const Sequence assert = { 1, 1, 1, 1, 2, 2, 2, 2, 3, 3, 3, 3 };
-  container_cast<Associative, Sequence> cast;
+  query::cast<Associative, Sequence> cast;
   const Sequence cv = cast(v);
   assert(cv == assert);
 }
 
 template <typename Associative, typename Sequence>
 void test_unordered_ass_to_seq_impl() {
-  using namespace query::convert_detail;
   const Associative v = { {1, 1}, {1, 1}, {2, 2}, {2, 2}, {3, 3}, {3, 3} };
   const Sequence assert = { 1, 1, 2, 2, 3, 3 };
-  container_cast<Associative, Sequence> cast;
+  query::cast<Associative, Sequence> cast;
   const auto cv = cast(v);
   assert(cv == assert);
 }
 
 template <typename Associative, typename Sequence>
 void test_unordered_multi_ass_to_seq_impl() {
-  using namespace query::convert_detail;
   const Associative v = { {1, 1}, {1, 1}, {2, 2}, {2, 2}, {3, 3}, {3, 3} };
   const Sequence assert = { 1, 1, 1, 1, 2, 2, 2, 2, 3, 3, 3, 3 };
-  container_cast<Associative, Sequence> cast;
+  query::cast<Associative, Sequence> cast;
   const auto cv = cast(v);
   assert(cv == assert);
 }
@@ -482,23 +474,93 @@ namespace set {
 
 template <typename Container>
 void union_with_seq_test() {
-  Container   values = { 1, 2, 3, 4, 5, 5, 5 };
-  Container to_union = {       3, 4, 5, 6, 7 };
-  Container   assert = { 1, 2, 3, 4, 5, 5, 5, 6, 7 };
-  Container select =
+  const Container   values = { 1, 2, 3, 4, 5, 5, 5 };
+  const Container to_union = {       3, 4, 5, 6, 7 };
+  const Container   assert = { 1, 2, 3, 4, 5, 5, 5, 6, 7 };
+  const Container   select =
     query::from(values).union_with(to_union).to(Container{});
   assert(select == assert);
 }
 
 void set_tests() {
   union_with_seq_test<std::vector<int>>();
-//  union_with_seq_test<std::deque<int>>();
-//  union_with_seq_test<std::list<int>>();
-//  union_with_seq_test<std::set<int>>();
-//  union_with_seq_test<std::multiset<int>>();
+  union_with_seq_test<std::deque<int>>();
+  union_with_seq_test<std::list<int>>();
+  union_with_seq_test<std::set<int>>();
+  union_with_seq_test<std::multiset<int>>();
 }
 
 } // namespace set
+
+namespace numeric {
+
+template <typename Container>
+void seq_min() {
+  Container values = { "1", "2", "3" };
+  auto min_value = query::from(values).min();
+  assert(min_value == "1");
+  auto max_value = query::from(values).max();
+  assert(max_value == "3");
+  auto sum = query::from(values).sum();
+  assert(sum == "123");
+}
+
+void numeric_tests() {
+  seq_min<std::vector<std::string>>();
+}
+
+} // namespace numeric
+
+namespace order {
+
+template <typename Container>
+void order_test_sort_impl() {
+  Container values = { 3, 1, 2 };
+  Container assert = { 1, 2, 3 };
+  Container sorted = query::from(values).sort().to(Container{});
+  assert(sorted == assert);
+}
+
+template <typename Container>
+void order_test_reverse_sort_impl() {
+  Container values = { 1, 2, 3 };
+  Container assert = { 3, 2, 1 };
+  Container sorted = query::from(values).reverse_sort().to(Container{});
+  assert(sorted == assert);
+}
+
+template <typename Container>
+void order_test_reverse_impl() {
+  Container values = { 1, 3, 2 };
+  Container assert = { 2, 3, 1 };
+  Container sorted = query::from(values).reverse().to(Container{});
+  assert(sorted == assert);
+}
+
+void order_tests() {
+  order_test_sort_impl<std::vector<int>>();
+  order_test_sort_impl<std::deque<int>>();
+  order_test_sort_impl<std::list<int>>(); // !
+//  order_test_sort_impl<std::forward_list<int>>(); // !
+//  order_test_sort_impl<std::set<int>>(); // !
+//  order_test_sort_impl<std::multiset<int>>(); // !
+
+  order_test_reverse_sort_impl<std::vector<int>>();
+  order_test_reverse_sort_impl<std::deque<int>>();
+  order_test_reverse_sort_impl<std::list<int>>();
+//  order_test_reverse_sort_impl<std::forward_list<int>>();
+//  order_test_reverse_sort_impl<std::set<int>>();
+//  order_test_reverse_sort_impl<std::multiset<int>>();
+
+  order_test_reverse_impl<std::vector<int>>();
+  order_test_reverse_impl<std::deque<int>>();
+  order_test_reverse_impl<std::list<int>>();
+//  order_test_reverse_impl<std::forward_list<int>>();
+//  order_test_reverse_impl<std::set<int>>();
+//  order_test_reverse_impl<std::multiset<int>>();
+}
+
+} // namespace order
 
 void complex_test() {
   const std::vector<int> values_1 = { 9,  7,  5,  3,  1 };
@@ -528,5 +590,7 @@ int main() {
   test::merge::merge_tests();
   test::where::where_tests();
   test::set::set_tests();
+  test::numeric::numeric_tests();
+  test::order::order_tests();
   test::complex_test();
 }
